@@ -1,0 +1,4 @@
+repository "platform_game_by_torba_games_course@jabbadeveloper@cloud"
+  path "/"
+    br "/main"
+    co "/main"
