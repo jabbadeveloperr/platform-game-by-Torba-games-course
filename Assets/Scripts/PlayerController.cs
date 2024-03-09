@@ -9,11 +9,13 @@ public class PlayerController : MonoBehaviour
     private Animator _animator;
     private bool _isGoBack;
     private Rigidbody2D _rigidbody2D;
+    private float _timeAfterWin;
 
     private void Start()
     {
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
+        _timeAfterWin = 3;
     }
 
     private void Update()
@@ -58,7 +60,7 @@ public class PlayerController : MonoBehaviour
         {
             _animator.SetTrigger("toIdle");
         }
-        else if (_rigidbody2D.velocity.y > 0)
+        else 
         {
             var triger = _rigidbody2D.velocity.y > 0 ? "toUp" : "toDown";
             _animator.SetTrigger(triger);
@@ -107,6 +109,6 @@ public class PlayerController : MonoBehaviour
     private void GameWin()
     {
         winnerText.SetActive(true);
-        Destroy(gameObject, 3);
+        Destroy(gameObject, _timeAfterWin);
     }
 }
