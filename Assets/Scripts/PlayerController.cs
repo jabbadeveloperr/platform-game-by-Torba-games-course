@@ -1,7 +1,5 @@
-using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 public class PlayerController : MonoBehaviour
 {
@@ -31,7 +29,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.tag == "Enemy") GameOver();
+        if (other.gameObject.CompareTag("Enemy")) GameOver();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -83,7 +81,7 @@ public class PlayerController : MonoBehaviour
 
     private void MoveCharacter(float horizontalMovement)
     {
-        var movement = new Vector2(horizontalMovement, 0f).normalized * speed * Time.deltaTime;
+        var movement = new Vector2(horizontalMovement, 0f).normalized * (speed * Time.deltaTime);
         _rigidbody2D.MovePosition(_rigidbody2D.position + movement);
     }
 
@@ -102,7 +100,8 @@ public class PlayerController : MonoBehaviour
 
     private void GameOver()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        if (SceneManager.GetActiveScene().isLoaded)
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void GameWin()
