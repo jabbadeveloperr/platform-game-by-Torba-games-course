@@ -3,12 +3,14 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] public float speed = 7;
+    [SerializeField] public float speed = 15;
     [SerializeField] public float jumpSpeed = 7;
     public GameObject winnerText;
+    private readonly float _maxSpeedFactor = 6f;
     private Animator _animator;
     private bool _isGoBack;
     private Rigidbody2D _rigidbody2D;
+    private float _slowFactor;
     private float _timeAfterWin;
 
     private void Start()
@@ -16,6 +18,7 @@ public class PlayerController : MonoBehaviour
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _animator = GetComponent<Animator>();
         _timeAfterWin = 3;
+        _slowFactor = 0.37f;
     }
 
     private void Update()
@@ -48,6 +51,7 @@ public class PlayerController : MonoBehaviour
 
         if (ShouldFlip(horizontalMovement)) Flip();
         if (isMoving) MoveCharacter(horizontalMovement);
+        if (!isMoving) StopCharacter();
     }
 
     private void ChangeAnimation(bool isMoving)
@@ -60,7 +64,7 @@ public class PlayerController : MonoBehaviour
         {
             _animator.SetTrigger("toIdle");
         }
-        else 
+        else
         {
             var triger = _rigidbody2D.velocity.y > 0 ? "toUp" : "toDown";
             _animator.SetTrigger(triger);
@@ -83,16 +87,30 @@ public class PlayerController : MonoBehaviour
 
     private void MoveCharacter(float horizontalMovement)
     {
-        var movement = new Vector2(horizontalMovement, 0f).normalized * (speed * Time.deltaTime);
-        _rigidbody2D.MovePosition(_rigidbody2D.position + movement);
+        if (IsGrounded())
+        {
+            var movement = new Vector2(horizontalMovement, 0f).normalized * (speed * Time.deltaTime);
+            _rigidbody2D.AddForce(movement, ForceMode2D.Impulse);
+            // Обмеження максимальної швидкості
+            if (Mathf.Abs(_rigidbody2D.velocity.x) > _maxSpeedFactor)
+                _rigidbody2D.velocity =
+                    new Vector2(Mathf.Sign(_rigidbody2D.velocity.x) * _maxSpeedFactor, _rigidbody2D.velocity.y);
+        }
     }
 
+    private void StopCharacter()
+    {
+        if (!IsGrounded()) return;
+        _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x * _slowFactor, _rigidbody2D.velocity.y);
+    }
     private void Jump()
     {
+        var horizontalMovement = Input.GetAxis("Horizontal");
+        var isMoving = horizontalMovement != 0;
+        
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
-            _rigidbody2D.AddForce(new Vector2(0, jumpSpeed), ForceMode2D.Impulse);
+            _rigidbody2D.AddForce(new Vector2(isMoving ? Mathf.Sign(horizontalMovement) * 2f : 0, jumpSpeed), ForceMode2D.Impulse);
     }
-
 
     private bool IsGrounded()
     {
