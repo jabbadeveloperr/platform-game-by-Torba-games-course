@@ -18,7 +18,7 @@ public class PlayerAnimatorController
         else if (isGrounded)
             SetAnimation(AnimationState.Idle);
         else
-            SetAnimation(rb.velocity.y > Constants.ZeroFloat ? AnimationState.Up : AnimationState.Down);
+            SetAnimation(rb.velocity.y > ConstantsPlayer.ZeroFloat ? AnimationState.Up : AnimationState.Down);
     }
 
     private void SetAnimation(AnimationState state)

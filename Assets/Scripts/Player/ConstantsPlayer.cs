@@ -1,4 +1,4 @@
-﻿public static class Constants
+﻿public static class ConstantsPlayer
 {
     public const float DefaultSpeed = 15f;
     public const float DefaultJumpSpeed = 7f;

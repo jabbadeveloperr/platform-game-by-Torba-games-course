@@ -3,8 +3,8 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float speed = Constants.DefaultSpeed;
-    [SerializeField] private float jumpSpeed = Constants.DefaultJumpSpeed;
+    [SerializeField] private float speed = ConstantsPlayer.DefaultSpeed;
+    [SerializeField] private float jumpSpeed = ConstantsPlayer.DefaultJumpSpeed;
     [SerializeField] private GameObject winnerText;
     private PlayerAnimatorController animatorController;
 
@@ -43,7 +43,7 @@ public class PlayerController : MonoBehaviour
     private void Move()
     {
         var horizontalMovement = Input.GetAxis("Horizontal");
-        var isMoving = horizontalMovement != Constants.ZeroFloat;
+        var isMoving = horizontalMovement != ConstantsPlayer.ZeroFloat;
 
         animatorController.ChangeAnimation(isMoving, IsGrounded());
 
@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
 
     private void Flip()
     {
-        transform.Rotate(Constants.ZeroFloat, Constants.FlipRotationAngle, Constants.ZeroFloat);
+        transform.Rotate(ConstantsPlayer.ZeroFloat, ConstantsPlayer.FlipRotationAngle, ConstantsPlayer.ZeroFloat);
         isFacingLeft = !isFacingLeft;
     }
 
@@ -71,36 +71,36 @@ public class PlayerController : MonoBehaviour
     {
         if (IsGrounded())
         {
-            var movement = new Vector2(horizontalMovement, Constants.ZeroFloat) * (speed * Time.deltaTime);
+            var movement = new Vector2(horizontalMovement, ConstantsPlayer.ZeroFloat) * (speed * Time.deltaTime);
             rb.AddForce(movement, ForceMode2D.Impulse);
 
-            if (Mathf.Abs(rb.velocity.x) > Constants.MaxSpeedFactor)
-                rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * Constants.MaxSpeedFactor, rb.velocity.y);
+            if (Mathf.Abs(rb.velocity.x) > ConstantsPlayer.MaxSpeedFactor)
+                rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * ConstantsPlayer.MaxSpeedFactor, rb.velocity.y);
         }
     }
 
     private void StopCharacter()
     {
         if (IsGrounded())
-            rb.velocity = new Vector2(rb.velocity.x * Constants.SlowFactor, rb.velocity.y);
+            rb.velocity = new Vector2(rb.velocity.x * ConstantsPlayer.SlowFactor, rb.velocity.y);
     }
 
     private void Jump()
     {
         var horizontalMovement = Input.GetAxis("Horizontal");
-        var isMoving = horizontalMovement != Constants.ZeroFloat;
+        var isMoving = horizontalMovement != ConstantsPlayer.ZeroFloat;
 
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
             rb.AddForce(
                 new Vector2(
-                    isMoving ? Mathf.Sign(horizontalMovement) * Constants.JumpHorizontalForce : Constants.ZeroFloat,
+                    isMoving ? Mathf.Sign(horizontalMovement) * ConstantsPlayer.JumpHorizontalForce : ConstantsPlayer.ZeroFloat,
                     jumpSpeed), ForceMode2D.Impulse);
     }
 
     private bool IsGrounded()
     {
-        return Physics2D.Raycast(transform.position - transform.localScale / Constants.TwoFloat, Vector2.down,
-            Constants.GroundRaycastDistance);
+        return Physics2D.Raycast(transform.position - transform.localScale / ConstantsPlayer.TwoFloat, Vector2.down,
+            ConstantsPlayer.GroundRaycastDistance);
     }
 
     private void GameOver()
@@ -112,6 +112,6 @@ public class PlayerController : MonoBehaviour
     private void GameWin()
     {
         winnerText.SetActive(true);
-        Destroy(gameObject, Constants.TimeAfterWin);
+        Destroy(gameObject, ConstantsPlayer.TimeAfterWin);
     }
 }
