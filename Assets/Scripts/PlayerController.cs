@@ -3,22 +3,18 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] public float speed = 15;
-    [SerializeField] public float jumpSpeed = 7;
-    public GameObject winnerText;
-    private readonly float _maxSpeedFactor = 6f;
-    private Animator _animator;
-    private bool _isGoBack;
-    private Rigidbody2D _rigidbody2D;
-    private float _slowFactor;
-    private float _timeAfterWin;
+    [SerializeField] private float speed = Constants.DefaultSpeed;
+    [SerializeField] private float jumpSpeed = Constants.DefaultJumpSpeed;
+    [SerializeField] private GameObject winnerText;
+    private PlayerAnimatorController animatorController;
+
+    private bool isFacingLeft;
+    private Rigidbody2D rb;
 
     private void Start()
     {
-        _rigidbody2D = GetComponent<Rigidbody2D>();
-        _animator = GetComponent<Animator>();
-        _timeAfterWin = 3;
-        _slowFactor = 0.37f;
+        rb = GetComponent<Rigidbody2D>();
+        animatorController = new PlayerAnimatorController(GetComponent<Animator>(), rb);
     }
 
     private void Update()
@@ -34,88 +30,77 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("Enemy")) GameOver();
+        if (other.gameObject.CompareTag(Tag.Enemy.ToString()))
+            GameOver();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Finish")) GameWin();
+        if (other.CompareTag(Tag.Finish.ToString()))
+            GameWin();
     }
 
     private void Move()
     {
         var horizontalMovement = Input.GetAxis("Horizontal");
-        var isMoving = horizontalMovement != 0;
+        var isMoving = horizontalMovement != Constants.ZeroFloat;
 
-        ChangeAnimation(isMoving);
+        animatorController.ChangeAnimation(isMoving, IsGrounded());
 
-        if (ShouldFlip(horizontalMovement)) Flip();
-        if (isMoving) MoveCharacter(horizontalMovement);
-        if (!isMoving) StopCharacter();
-    }
+        if (ShouldFlip(horizontalMovement))
+            Flip();
 
-    private void ChangeAnimation(bool isMoving)
-    {
-        if (isMoving && IsGrounded())
-        {
-            _animator.SetTrigger("toRun");
-        }
-        else if (IsGrounded())
-        {
-            _animator.SetTrigger("toIdle");
-        }
+        if (isMoving)
+            MoveCharacter(horizontalMovement);
         else
-        {
-            var triger = _rigidbody2D.velocity.y > 0 ? "toUp" : "toDown";
-            _animator.SetTrigger(triger);
-        }
+            StopCharacter();
     }
-
 
     private bool ShouldFlip(float horizontalMovement)
     {
-        return (horizontalMovement > 0 && _isGoBack) || (horizontalMovement < 0 && !_isGoBack);
+        return (horizontalMovement > 0 && isFacingLeft) || (horizontalMovement < 0 && !isFacingLeft);
     }
 
     private void Flip()
     {
-        var scale = transform.localScale;
-        scale.x *= -1;
-        transform.localScale = scale;
-        _isGoBack = !_isGoBack;
+        transform.Rotate(Constants.ZeroFloat, Constants.FlipRotationAngle, Constants.ZeroFloat);
+        isFacingLeft = !isFacingLeft;
     }
 
     private void MoveCharacter(float horizontalMovement)
     {
         if (IsGrounded())
         {
-            var movement = new Vector2(horizontalMovement, 0f).normalized * (speed * Time.deltaTime);
-            _rigidbody2D.AddForce(movement, ForceMode2D.Impulse);
-            // Обмеження максимальної швидкості
-            if (Mathf.Abs(_rigidbody2D.velocity.x) > _maxSpeedFactor)
-                _rigidbody2D.velocity =
-                    new Vector2(Mathf.Sign(_rigidbody2D.velocity.x) * _maxSpeedFactor, _rigidbody2D.velocity.y);
+            var movement = new Vector2(horizontalMovement, Constants.ZeroFloat) * (speed * Time.deltaTime);
+            rb.AddForce(movement, ForceMode2D.Impulse);
+
+            if (Mathf.Abs(rb.velocity.x) > Constants.MaxSpeedFactor)
+                rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * Constants.MaxSpeedFactor, rb.velocity.y);
         }
     }
 
     private void StopCharacter()
     {
-        if (!IsGrounded()) return;
-        _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x * _slowFactor, _rigidbody2D.velocity.y);
+        if (IsGrounded())
+            rb.velocity = new Vector2(rb.velocity.x * Constants.SlowFactor, rb.velocity.y);
     }
+
     private void Jump()
     {
         var horizontalMovement = Input.GetAxis("Horizontal");
-        var isMoving = horizontalMovement != 0;
-        
+        var isMoving = horizontalMovement != Constants.ZeroFloat;
+
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
-            _rigidbody2D.AddForce(new Vector2(isMoving ? Mathf.Sign(horizontalMovement) * 2f : 0, jumpSpeed), ForceMode2D.Impulse);
+            rb.AddForce(
+                new Vector2(
+                    isMoving ? Mathf.Sign(horizontalMovement) * Constants.JumpHorizontalForce : Constants.ZeroFloat,
+                    jumpSpeed), ForceMode2D.Impulse);
     }
 
     private bool IsGrounded()
     {
-        var cachedTransform = transform;
-        return Physics2D.Raycast(cachedTransform.position - cachedTransform.localScale / 2, Vector2.down, 0.1f);
+        return Physics2D.Raycast(transform.position - transform.localScale / Constants.TwoFloat, Vector2.down,
+            Constants.GroundRaycastDistance);
     }
 
     private void GameOver()
@@ -127,6 +112,6 @@ public class PlayerController : MonoBehaviour
     private void GameWin()
     {
         winnerText.SetActive(true);
-        Destroy(gameObject, _timeAfterWin);
+        Destroy(gameObject, Constants.TimeAfterWin);
     }
 }
