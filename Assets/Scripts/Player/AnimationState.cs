@@ -1,7 +1,10 @@
-﻿public enum AnimationState
+﻿namespace Player
 {
-    Idle,
-    Run,
-    Up,
-    Down
+    public enum AnimationState
+    {
+        Idle,
+        Run,
+        Up,
+        Down
+    }
 }

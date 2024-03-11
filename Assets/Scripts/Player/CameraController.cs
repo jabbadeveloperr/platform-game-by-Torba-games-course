@@ -1,16 +1,19 @@
 using UnityEngine;
 
-public class CameraController : MonoBehaviour
+namespace Player
 {
-    [SerializeField] private GameObject player;
-
-    private void Start()
+    public class CameraController : MonoBehaviour
     {
-        player = GameObject.FindWithTag("Player");
-    }
+        [SerializeField] private GameObject player;
 
-    private void Update()
-    {
-        transform.position = new Vector3(player.transform.position.x, transform.position.y, transform.position.z);
+        private void Start()
+        {
+            player = GameObject.FindWithTag("Player");
+        }
+
+        private void Update()
+        {
+            transform.position = new Vector3(player.transform.position.x, transform.position.y, transform.position.z);
+        }
     }
 }
