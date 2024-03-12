@@ -17,7 +17,7 @@ Welcome to Red! This is a simple Unity game with player control, enemy AI, and a
 1. Clone this repository:
 
     ```bash
-    git clone https://github.com/your-username/MyGame.git
+    git clone git@github.com:jabbadeveloperr/platform-game-by-Torba-games-course.git
     ```
 2. Open the project in Unity.
 
